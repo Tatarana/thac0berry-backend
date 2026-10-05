@@ -28,6 +28,5 @@ jobs:
         if: always()
         run: |
           grep -E '^not ok|Failed test' test.log | head -20 | while IFS= read -r l; do echo "::error title=pgTAP::$l"; done
-          r=$(grep -E '^(Files=|Result:)' test.log | tr '
-' ' ')
+          r=$(grep -E '^(Files=|Result:)' test.log | paste -sd ' ')
           echo "::notice title=pgTAP::${r:-sem resumo}"
