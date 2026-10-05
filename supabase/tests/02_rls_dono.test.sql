@@ -29,9 +29,9 @@ select results_eq(
   $$ values ('Kelmon'::text, 'Cleric'::text, 11, 'alive'::text) $$,
   'resumo da ficha é calculado a partir do JSON');
 
--- Dono apaga: nenhuma linha some (exclusão é só marcação em deleted_at).
-delete from public.character where id = 'ca000000-0000-0000-0000-00000000000a';
-select is((select count(*) from public.character), 1::bigint, 'DELETE do cliente não apaga nada');
+-- Nem o dono apaga linha: sem GRANT de DELETE (exclusão é marcação em deleted_at).
+select throws_ok($$ delete from public.character where id = 'ca000000-0000-0000-0000-00000000000a' $$,
+                 '42501', null, 'DELETE é negado (exclusão só por deleted_at)');
 
 -- ---- Usuário B não vê nada de A ----
 select set_config('request.jwt.claims', '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}', true);
@@ -71,8 +71,8 @@ select is((select count(*) from public.character), 1::bigint, 'B vê só o próp
 -- ---- Anônimo (sem login) não vê nada ----
 reset role;
 set local role anon;
-select is((select count(*) from public.campaign),  0::bigint, 'anônimo não vê campanhas');
-select is((select count(*) from public.character), 0::bigint, 'anônimo não vê personagens');
+select throws_ok($$ select count(*) from public.campaign $$,  '42501', null, 'anônimo: acesso negado a campanhas');
+select throws_ok($$ select count(*) from public.character $$, '42501', null, 'anônimo: acesso negado a personagens');
 
 -- ---- Conferência como administrador ----
 reset role;

@@ -186,6 +186,12 @@ detalhes:
   tabelas entram na Fase 2, em migração própria.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
+- **Acesso explícito à API** (`20261005150000_acesso_explicito.sql`). O projeto na
+  nuvem foi criado com "expose new tables" desligado. Só o usuário logado tem
+  acesso: SELECT, INSERT e UPDATE nas tabelas da Fase 1, e SELECT e INSERT em
+  `attachment`. Ninguém tem DELETE. O anônimo não acessa nada. A migração revoga
+  antes os acessos automáticos do ambiente local, para o CI se comportar como a
+  nuvem.
 
 ## 5. O que muda no formato do personagem
 

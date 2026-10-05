@@ -37,8 +37,8 @@ select is((select name from public.campaign where id = 'c0000000-0000-0000-0000-
 select isnt((select conflicted_at from public.campaign where id = 'c0000000-0000-0000-0000-000000000001'),
             null, 'versão-base antiga: marcada como conflito');
 
-select is((select count(*) from public.record_history), 0::bigint,
-          'histórico é invisível para o cliente');
+select throws_ok($$ select count(*) from public.record_history $$, '42501', null,
+                 'histórico não é acessível pela API (sem GRANT)');
 
 reset role;
 select is((select count(*) from public.record_history
