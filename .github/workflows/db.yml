@@ -21,4 +21,13 @@ jobs:
       - name: Lint das migrações
         run: supabase db lint --level warning
       - name: Testes (pgTAP)
-        run: supabase test db
+        run: |
+          set -o pipefail
+          supabase test db 2>&1 | tee test.log
+      - name: Anotações (resumo e falhas; logs exigem login, anotações são públicas)
+        if: always()
+        run: |
+          grep -E '^not ok|Failed test' test.log | head -20 | while IFS= read -r l; do echo "::error title=pgTAP::$l"; done
+          r=$(grep -E '^(Files=|Result:)' test.log | tr '
+' ' ')
+          echo "::notice title=pgTAP::${r:-sem resumo}"
