@@ -1,0 +1,24 @@
+# Sobe o Supabase local (Postgres em Docker), aplica todas as migrações do zero
+# e roda os testes pgTAP de supabase/tests. Não usa o projeto na nuvem.
+name: Banco (migrações + testes)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  db:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.119.0
+      - name: Subir banco local (aplica supabase/migrations)
+        run: supabase db start
+      - name: Lint das migrações
+        run: supabase db lint --level warning
+      - name: Testes (pgTAP)
+        run: supabase test db
