@@ -166,6 +166,27 @@ resumo:
 - `character_grant`: o mestre cria e revoga; o dono e o beneficiado leem.
 - `user_preferences`: só o próprio usuário.
 
+### 4.1 Como ficou na implementação da Fase 1
+
+O esboço acima é o desenho geral. A migração
+`supabase/migrations/20261005120000_fase1_sync_pessoal.sql` o implementa com estes
+detalhes:
+- **Resumo calculado pelo banco.** `character.name`, `character_class`, `level` e
+  `status`, e também `spell_sheet.title`, são colunas *geradas* a partir do JSON
+  `data`. O cliente não as grava, e elas nunca divergem da ficha.
+- **Datas como `timestamptz`.** Inclui `session.date`. A data do dia de magia fica
+  dentro do JSON da folha.
+- **`spell_sheet.owner_id` e `session.owner_id`** repetem o dono, para simplificar as
+  permissões.
+- **`conflicted_at`** em toda tabela sincronizável: preenchida quando a gravação
+  chegou baseada numa versão antiga (§6.3).
+- **`record_history` gravado, mas invisível para o cliente** (RLS sem políticas). A
+  leitura e o "restaurar" entram junto com a tela do app, por uma função própria.
+- **Sem `campaign_member` nem `character_grant` ainda.** Fase 1 = só o dono. Essas
+  tabelas entram na Fase 2, em migração própria.
+- **Arquivos:** bucket privado `attachments`, com um caminho por usuário
+  (`<user_id>/<sha256>`).
+
 ## 5. O que muda no formato do personagem
 
 | Campo | No servidor | Motivo |
@@ -192,6 +213,19 @@ migração (hoje as favoritas são globais, em `CharacterLibrary`). No servidor,
    no `library.json` local. Inclui as exclusões marcadas (tombstones).
 4. **Quando:** ao abrir o app, ao voltar para o primeiro plano, a cada N minutos com o
    app aberto e manualmente (botão "Sync"). Tempo real (§9, Fase 3) é opcional.
+
+**Contrato de envio (Fase 1):**
+- **Registro novo:** `INSERT` (POST).
+- **Registro que o servidor já tem:** `UPDATE` (PATCH `?id=eq.<id>`), **sempre**
+  levando o `version` conhecido.
+- **Não usar upsert** (`ON CONFLICT DO UPDATE`): o trigger de inserção roda antes e
+  apaga a versão-base, e o conflito deixaria de ser detectado.
+- **Ordem de envio**, por causa das chaves estrangeiras: `campaign` → `session` →
+  `character` → `spell_sheet` → `notebook_entry`.
+- **Pull:** `GET` de cada tabela com `change_seq=gt.<cursor>`, ordenado por
+  `change_seq`. Como duas transações podem terminar fora de ordem, o cliente puxa com
+  uma pequena margem abaixo do cursor e aplica de forma idempotente (por `id` +
+  `version`).
 
 ### 6.2 O que o app precisa guardar por registro
 `version` conhecida do servidor e um marcador de "alterado localmente desde o último
