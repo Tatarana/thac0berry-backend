@@ -116,6 +116,7 @@ create table notebook_entry (
   -- anotações públicas; entra como coluna nova, sem migrar as existentes
   date timestamptz, title text, text text, kind text, paper_style text,
   drawing_attachment uuid references attachment,
+  drawing_image_attachment uuid references attachment, -- PNG do desenho, para a web (2026-10-06)
   /* colunas de sincronização */ );
 
 create table character (
