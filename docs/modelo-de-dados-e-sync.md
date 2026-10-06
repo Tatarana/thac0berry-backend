@@ -65,7 +65,9 @@ revogar ou até `expires_at`. **Assumido:** o padrão é 24 h, para cobrir uma s
 ficar aberto para sempre. O dono continua com acesso total.
 
 **Caderno individual (Q3):** cada jogador lê e escreve só as próprias anotações; nem o
-mestre lê. Anotações "públicas" para a campanha ficam para o futuro. Isso **muda o conceito atual do app**: hoje o
+mestre lê. **Por personagem (2026-10-06, pedido do usuário):** cada personagem de cada
+jogador tem o seu caderno (`notebook_entry.character_id`), inclusive no Sandbox; a
+campanha virou opcional. No iPad é o formato 2 do `library.json`. Anotações "públicas" para a campanha ficam para o futuro. Isso **muda o conceito atual do app**: hoje o
 caderno é da campanha e compartilhado no aparelho. Na migração, as páginas existentes
 ficam com o dono do aparelho que as enviar primeiro.
 
@@ -106,7 +108,9 @@ create table session (
   /* colunas de sincronização */ );
 
 create table notebook_entry (
-  id uuid primary key, campaign_id uuid not null references campaign,
+  id uuid primary key,
+  character_id uuid references character,           -- caderno por personagem (2026-10-06)
+  campaign_id uuid references campaign,             -- opcional desde 2026-10-06
   author_id uuid not null references auth.users,    -- caderno individual (Q3)
   -- futuro: visibility text default 'private' ('private' | 'campaign') para
   -- anotações públicas; entra como coluna nova, sem migrar as existentes

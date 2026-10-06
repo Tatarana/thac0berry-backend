@@ -1,7 +1,7 @@
 -- Permissões da Fase 1: cada usuário só vê e altera o que é dele.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(17);
+select plan(20);
 
 insert into auth.users (id, email, aud, role) values
   ('11111111-1111-1111-1111-111111111111', 'a@teste.dev', 'authenticated', 'authenticated'),
@@ -21,8 +21,14 @@ insert into public.character (id, campaign_id, data)
 insert into public.spell_sheet (id, character_id, session_id, data)
   values ('5b000000-0000-0000-0000-00000000000a', 'ca000000-0000-0000-0000-00000000000a',
           '50000000-0000-0000-0000-00000000000a', '{"title":"Day 1"}');
-insert into public.notebook_entry (id, campaign_id, title)
-  values ('0b000000-0000-0000-0000-00000000000a', 'c0000000-0000-0000-0000-00000000000a', 'Notas de A');
+-- Caderno por personagem (2026-10-06): a página é do personagem; a campanha é opcional.
+insert into public.notebook_entry (id, character_id, campaign_id, title)
+  values ('0b000000-0000-0000-0000-00000000000a', 'ca000000-0000-0000-0000-00000000000a',
+          'c0000000-0000-0000-0000-00000000000a', 'Notas de A');
+select throws_ok(
+  $$ insert into public.notebook_entry (id, campaign_id)
+     values ('0b000000-0000-0000-0000-0000000000a2', 'c0000000-0000-0000-0000-00000000000a') $$,
+  '42501', null, 'página nova sem personagem é recusada');
 
 select results_eq(
   $$ select name, character_class, level, status from public.character $$,
@@ -60,6 +66,10 @@ select throws_ok(
      values ('0b000000-0000-0000-0000-00000000000b', 'c0000000-0000-0000-0000-00000000000a') $$,
   '42501', null, 'B não escreve no caderno da campanha de A');
 select throws_ok(
+  $$ insert into public.notebook_entry (id, character_id)
+     values ('0b000000-0000-0000-0000-00000000000c', 'ca000000-0000-0000-0000-00000000000a') $$,
+  '42501', null, 'B não escreve no caderno do personagem de A');
+select throws_ok(
   $$ insert into public.character (id, owner_id, data)
      values ('ca000000-0000-0000-0000-00000000000c', '11111111-1111-1111-1111-111111111111', '{}') $$,
   '42501', null, 'B não cria personagem em nome de A');
@@ -67,6 +77,10 @@ select throws_ok(
 -- B tem a própria biblioteca normalmente (Sandbox: personagem sem campanha).
 insert into public.character (id, data) values ('ca000000-0000-0000-0000-00000000000d', '{"name":"Borin"}');
 select is((select count(*) from public.character), 1::bigint, 'B vê só o próprio personagem');
+-- …e o caderno dele, mesmo no Sandbox (sem campanha).
+insert into public.notebook_entry (id, character_id, title)
+  values ('0b000000-0000-0000-0000-00000000000d', 'ca000000-0000-0000-0000-00000000000d', 'Notas de Borin');
+select is((select count(*) from public.notebook_entry), 1::bigint, 'B tem caderno no personagem do Sandbox');
 
 -- ---- Anônimo (sem login) não vê nada ----
 reset role;
