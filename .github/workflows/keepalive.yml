@@ -1,0 +1,37 @@
+# Mantém o projeto do Supabase ativo: no plano gratuito ele é pausado depois
+# de uma semana sem atividade de banco. Uma vez por dia, chama a função
+# public.keepalive() (migração 20261007120000) com a chave PÚBLICA do projeto,
+# a mesma que já está no código da web. Nenhum segredo é usado.
+#
+# Atenção: o GitHub desliga workflows agendados de repositório público que fica
+# 60 dias sem commits. Se chegar o e-mail avisando, é só reativar em Actions.
+name: Manter Supabase ativo
+
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SUPABASE_URL: https://azydmvnlzmyvtsgfogbq.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_VGUm2JdArmQuqeFBm1-Elg_ko24yZH2
+    steps:
+      - name: Chamar keepalive()
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            code=$(curl -s -o response.txt -w '%{http_code}' -X POST "$SUPABASE_URL/rest/v1/rpc/keepalive" \
+              -H "apikey: $SUPABASE_PUBLISHABLE_KEY" -H "Content-Type: application/json" -d '{}')
+            if [ "$code" = "200" ]; then
+              echo "::notice title=keepalive::ok $(cat response.txt)"
+              exit 0
+            fi
+            echo "tentativa $attempt: HTTP $code $(cat response.txt)"
+            sleep 20
+          done
+          echo "::error title=keepalive::HTTP $code: o projeto pode estar pausado (reative no painel do Supabase)"
+          exit 1
