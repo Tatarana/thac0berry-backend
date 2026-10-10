@@ -49,7 +49,7 @@ indicado.
 | Entidade | Dono | Quem lê | Quem edita | Hoje vive em |
 |---|---|---|---|---|
 | `user` | (conta) | o próprio | o próprio | não existe |
-| `user_preferences` | usuário | o próprio | o próprio | `library.json` (favoritas, papel padrão) |
+| `user_preferences` | usuário | o próprio | o próprio | `library.json` (favoritas, papel padrão); nome padrão do jogador só na web por enquanto |
 | `campaign` | quem criou (mestre) | membros | mestre | `Campaign` |
 | `campaign_member` | campanha | membros | mestre | não existe |
 | `session` | campanha | membros | mestre e jogadores | `Campaign.sessions` |
@@ -145,6 +145,7 @@ create table spell_sheet (
 create table user_preferences (
   user_id uuid primary key references auth.users,
   favorite_spell_ids text[] default '{}', default_notebook_paper_style text,
+  default_player_name text,                      -- nome padrão do jogador nos personagens novos (web, 2026-10-10)
   /* colunas de sincronização */ );
 
 create table attachment (
