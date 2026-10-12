@@ -49,7 +49,7 @@ indicado.
 | Entidade | Dono | Quem lê | Quem edita | Hoje vive em |
 |---|---|---|---|---|
 | `user` | (conta) | o próprio | o próprio | não existe |
-| `user_preferences` | usuário | o próprio | o próprio | `library.json` (favoritas, papel padrão); nome padrão do jogador só na web por enquanto |
+| `user_preferences` | usuário | o próprio | o próprio | `library.json` (favoritas, papel padrão); só na web por enquanto: nome padrão do jogador, campanha ativa do DM e configurações do Combat Tracker |
 | `campaign` | quem criou (mestre) | membros | mestre | `Campaign` |
 | `campaign_member` | campanha | membros | mestre | não existe |
 | `session` | campanha | membros | mestre e jogadores | `Campaign.sessions` |
@@ -58,6 +58,7 @@ indicado.
 | `character_grant` | personagem | mestre, dono, beneficiado | mestre (concede e revoga) | não existe |
 | `spell_sheet` | personagem | igual à ficha completa do personagem | igual ao personagem | `PlayerCharacter.spellSheets` |
 | `attachment` | dono do registro que o usa | igual ao registro | o dono | base64 no JSON |
+| `encounter` | quem criou (mestre) | o mestre | o mestre | só na web (Combat Tracker; antes, no aparelho) |
 
 **Acesso temporário (Q1):** quando um jogador falta, o mestre concede a outro jogador
 acesso de edição à ficha do ausente (`character_grant`). O acesso vale até o mestre
@@ -146,6 +147,15 @@ create table user_preferences (
   user_id uuid primary key references auth.users,
   favorite_spell_ids text[] default '{}', default_notebook_paper_style text,
   default_player_name text,                      -- nome padrão do jogador nos personagens novos (web, 2026-10-10)
+  dm_active_campaign_id uuid references campaign, -- campanha ativa do modo DM (web, 2026-10-12)
+  dm_active_one_shot boolean default false,       -- true = One-shot (sem campanha)
+  combat_settings jsonb,                          -- configurações do Combat Tracker (web)
+  /* colunas de sincronização */ );
+
+create table encounter (                          -- encontro do Combat Tracker (web, 2026-10-12)
+  id uuid primary key, owner_id uuid not null references auth.users,
+  campaign_id uuid references campaign,           -- null = One-shot
+  data jsonb not null,                            -- o Encounter da web: combatentes, rodada, iniciativa, histórico, log
   /* colunas de sincronização */ );
 
 create table attachment (
@@ -171,6 +181,7 @@ resumo:
 - `notebook_entry`: só o autor.
 - `character_grant`: o mestre cria e revoga; o dono e o beneficiado leem.
 - `user_preferences`: só o próprio usuário.
+- `encounter`: só o mestre que criou (na Fase 1, o dono; a campanha, se houver, também é dele).
 
 ### 4.1 Como ficou na implementação da Fase 1
 
@@ -192,6 +203,12 @@ detalhes:
   tabelas entram na Fase 2, em migração própria.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
+- **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
+  2026-10-12): tabela `encounter` (o JSON do encontro da web em `data`; `name` e
+  `ended` gerados) com as mesmas regras das outras; em `user_preferences`,
+  `dm_active_campaign_id` + `dm_active_one_shot` (uma campanha ativa por conta,
+  decisão do usuário) e `combat_settings`. Sem login, a web continua guardando
+  encontros e campanha ativa só no aparelho.
 - **Acesso explícito à API** (`20261005150000_acesso_explicito.sql`). O projeto na
   nuvem foi criado com "expose new tables" desligado. Só o usuário logado tem
   acesso: SELECT, INSERT e UPDATE nas tabelas da Fase 1, e SELECT e INSERT em
@@ -233,7 +250,7 @@ migração (hoje as favoritas são globais, em `CharacterLibrary`). No servidor,
 - **Não usar upsert** (`ON CONFLICT DO UPDATE`): o trigger de inserção roda antes e
   apaga a versão-base, e o conflito deixaria de ser detectado.
 - **Ordem de envio**, por causa das chaves estrangeiras: `campaign` → `session` →
-  `character` → `spell_sheet` → `notebook_entry`.
+  `character` → `spell_sheet` → `notebook_entry`; `encounter` depois de `campaign`.
 - **Pull:** `GET` de cada tabela com `change_seq=gt.<cursor>`, ordenado por
   `change_seq`. Como duas transações podem terminar fora de ordem, o cliente puxa com
   uma pequena margem abaixo do cursor e aplica de forma idempotente (por `id` +
