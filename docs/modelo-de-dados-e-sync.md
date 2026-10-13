@@ -211,8 +211,16 @@ detalhes:
   mestre vê o código (`20261013150000_sessao_so_quem_criou.sql`, decisão do
   usuário: só quem criou a sessão, ou o mestre, edita, fecha e apaga; os outros
   membros leem e criam as suas). Jogador que sai ou é removido, e campanha apagada: as fichas
-  dos jogadores voltam ao Sandbox. Ainda sem o mestre ler as fichas dos jogadores
-  (Fase 2b) e sem `character_grant` (Fase 2c).
+  dos jogadores voltam ao Sandbox.
+- **Fase 2b, fichas na campanha** (`20261013180000_fase2b_fichas_na_campanha.sql`,
+  2026-10-13): o dono põe a ficha numa campanha de que é membro; o mestre da
+  campanha lê e edita a ficha e as folhas de magia (`can_access_character`). A trava
+  `character_guard` impede trocar o dono e só deixa o dono apagar a ficha ou tirá-la
+  da campanha (as funções que devolvem fichas ao Sandbox ligam `thac0berry.system`
+  para passar). A folha criada pelo mestre fica no nome do dono da ficha
+  (`spell_sheet_owner`). Retrato e tinta seguem a ficha: quem a lê lê os arquivos
+  (`can_read_attachment`, também no Storage). O caderno continua só do autor. Ainda
+  sem o resumo do grupo para os outros jogadores nem `character_grant` (Fase 2c).
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
