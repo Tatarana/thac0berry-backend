@@ -208,7 +208,9 @@ detalhes:
   hífen). Membros e convites só mudam por funções (`set_campaign_invite`,
   `revoke_campaign_invite`, `join_campaign`, `remove_campaign_member`); o cliente só
   lê as tabelas. Membros leem a campanha e as sessões, e criam e editam sessões; só o
-  mestre vê o código. Jogador que sai ou é removido, e campanha apagada: as fichas
+  mestre vê o código (`20261013150000_sessao_so_quem_criou.sql`, decisão do
+  usuário: só quem criou a sessão, ou o mestre, edita, fecha e apaga; os outros
+  membros leem e criam as suas). Jogador que sai ou é removido, e campanha apagada: as fichas
   dos jogadores voltam ao Sandbox. Ainda sem o mestre ler as fichas dos jogadores
   (Fase 2b) e sem `character_grant` (Fase 2c).
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
