@@ -199,8 +199,18 @@ detalhes:
   chegou baseada numa versão antiga (§6.3).
 - **`record_history` gravado, mas invisível para o cliente** (RLS sem políticas). A
   leitura e o "restaurar" entram junto com a tela do app, por uma função própria.
-- **Sem `campaign_member` nem `character_grant` ainda.** Fase 1 = só o dono. Essas
-  tabelas entram na Fase 2, em migração própria.
+- **Fase 2a, membros e convites** (`20261013120000_fase2a_membros_e_convites.sql`,
+  2026-10-13): `campaign_member` (o mestre é `gm`, pelo trigger na criação da
+  campanha; os jogadores entram como `player`, com o nome que aparece para o grupo)
+  e `campaign_invite` (um código ativo por campanha, sem prazo, único entre os ativos
+  de todas as campanhas e sem diferenciar maiúsculas; o mestre gera um aleatório de
+  6 caracteres sem 0/O e 1/I, ou escolhe o dele, de 4 a 24 letras, algarismos e
+  hífen). Membros e convites só mudam por funções (`set_campaign_invite`,
+  `revoke_campaign_invite`, `join_campaign`, `remove_campaign_member`); o cliente só
+  lê as tabelas. Membros leem a campanha e as sessões, e criam e editam sessões; só o
+  mestre vê o código. Jogador que sai ou é removido, e campanha apagada: as fichas
+  dos jogadores voltam ao Sandbox. Ainda sem o mestre ler as fichas dos jogadores
+  (Fase 2b) e sem `character_grant` (Fase 2c).
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
