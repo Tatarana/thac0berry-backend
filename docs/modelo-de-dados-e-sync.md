@@ -221,6 +221,16 @@ detalhes:
   (`spell_sheet_owner`). Retrato e tinta seguem a ficha: quem a lê lê os arquivos
   (`can_read_attachment`, também no Storage). O caderno continua só do autor. Ainda
   sem o resumo do grupo para os outros jogadores nem `character_grant` (Fase 2c).
+- **Fase 2c, grupo e acesso temporário** (`20261013210000_fase2c_grupo_e_acesso_temporario.sql`,
+  2026-10-13): o resumo do grupo é a função `campaign_party(campanha)`, e não uma
+  *view* (precisa passar pelo RLS da ficha só nas colunas do resumo): nome de quem
+  joga, nome, classe, nível, estado, PV e se a conta pode abrir a ficha; só para
+  membros. `character_grant` com `grant_character_access` (só o mestre, para um
+  jogador da campanha que não é o dono; de 1 a 168 h, padrão 24 h; o novo substitui
+  o anterior da mesma pessoa) e `revoke_character_access` (o mestre, ou quem recebeu
+  devolvendo). O acesso vale enquanto não expira, não é revogado, a ficha está na
+  campanha e quem recebeu é membro; com ele, lê e edita a ficha e as folhas, mas não
+  apaga nem tira da campanha.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
