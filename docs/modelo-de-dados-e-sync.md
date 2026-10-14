@@ -59,6 +59,7 @@ indicado.
 | `spell_sheet` | personagem | igual à ficha completa do personagem | igual ao personagem | `PlayerCharacter.spellSheets` |
 | `attachment` | dono do registro que o usa | igual ao registro | o dono | base64 no JSON |
 | `encounter` | quem criou (mestre) | o mestre | o mestre | só na web (Combat Tracker; antes, no aparelho) |
+| `dm_table` | quem criou (mestre) | o mestre | o mestre | só na web (tabelas do mestre no Table Grimoire, GT5) |
 
 **Acesso temporário (Q1):** quando um jogador falta, o mestre concede a outro jogador
 acesso de edição à ficha do ausente (`character_grant`). O acesso vale até o mestre
@@ -244,6 +245,11 @@ detalhes:
   sempre. É o que deixa um jogador ver os PV de um colega mudarem sem poder ler a
   ficha dele. Com isso a **Fase 3** (tempo real) cobre a ficha e a campanha; o
   Combat Tracker ficou de fora (decisão do usuário).
+- **Tabelas do mestre** (`20261014180000_gt5_tabelas_do_mestre.sql`, 2026-10-14):
+  `dm_table`, o JSON da tabela em `data` (título, dado, cabeçalhos, linhas, notas,
+  origem), `name` gerado do título; só o dono lê e grava (os jogadores não veem); a
+  campanha, se houver, é dele (nula = One-shot). Copiar para outra campanha é um
+  INSERT novo (cópia independente), pela web.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
