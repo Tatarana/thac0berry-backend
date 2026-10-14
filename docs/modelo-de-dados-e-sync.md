@@ -236,6 +236,14 @@ detalhes:
   Realtime respeita o RLS (cada um só é avisado das linhas que pode ler); o aviso só
   diz que a linha mudou, e o cliente relê pela API. Sem edição pendente, o cliente
   aplica a versão nova; com edição pendente, grava por cima (o conflito de sempre).
+- **Fase 3, R2: campanha ao vivo** (`20261014150000_fase3_r2_campanha_ao_vivo.sql`,
+  2026-10-14): `campaign_pulse`, uma linha por campanha com a hora da última
+  mudança, atualizada por gatilhos (campanha, fichas ao entrar/mudar/sair, folhas,
+  sessões, membros, acessos temporários). Só os membros a leem e ela está no
+  Realtime; o aviso não leva dado, e a página relê o que mostra pelas consultas de
+  sempre. É o que deixa um jogador ver os PV de um colega mudarem sem poder ler a
+  ficha dele. Com isso a **Fase 3** (tempo real) cobre a ficha e a campanha; o
+  Combat Tracker ficou de fora (decisão do usuário).
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
