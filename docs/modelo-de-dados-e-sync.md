@@ -231,6 +231,11 @@ detalhes:
   devolvendo). O acesso vale enquanto não expira, não é revogado, a ficha está na
   campanha e quem recebeu é membro; com ele, lê e edita a ficha e as folhas, mas não
   apaga nem tira da campanha.
+- **Fase 3, R1: ficha ao vivo** (`20261014120000_fase3_r1_ficha_ao_vivo.sql`,
+  2026-10-14): `character` e `spell_sheet` na publicação `supabase_realtime`. O
+  Realtime respeita o RLS (cada um só é avisado das linhas que pode ler); o aviso só
+  diz que a linha mudou, e o cliente relê pela API. Sem edição pendente, o cliente
+  aplica a versão nova; com edição pendente, grava por cima (o conflito de sempre).
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
