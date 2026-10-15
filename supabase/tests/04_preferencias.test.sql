@@ -2,13 +2,14 @@
 -- e nome padrão do jogador; só o próprio usuário lê e grava.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(5);
+select plan(6);
 
 insert into auth.users (id, email, aud, role) values
   ('33333333-3333-3333-3333-333333333333', 'c@teste.dev', 'authenticated', 'authenticated'),
   ('44444444-4444-4444-4444-444444444444', 'd@teste.dev', 'authenticated', 'authenticated');
 
 select has_column('public', 'user_preferences', 'default_player_name', 'coluna do nome padrão do jogador');
+select col_default_is('public', 'user_preferences', 'accept_dm_changes', 'false', 'aceitar as mudanças do mestre começa desligado');
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"33333333-3333-3333-3333-333333333333","role":"authenticated"}', true);
