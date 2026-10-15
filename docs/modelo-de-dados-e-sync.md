@@ -61,6 +61,7 @@ indicado.
 | `encounter` | quem criou (mestre) | o mestre | o mestre | só na web (Combat Tracker; antes, no aparelho) |
 | `dm_table` | quem criou (mestre) | o mestre | o mestre | só na web (tabelas do mestre no Table Grimoire, GT5) |
 | `encounter_view` | encontro (mestre) | membros da campanha | o mestre, só pelas funções | só na web (vista filtrada do encontro para os jogadores, Combat Tracker ao vivo) |
+| `combat_message` | encontro e personagem | o mestre da campanha e quem fala pelo personagem | só pelas funções: manda quem pode, aceita quem recebe | só na web (Combat Tracker interativo) |
 
 **Acesso temporário (Q1):** quando um jogador falta, o mestre concede a outro jogador
 acesso de edição à ficha do ausente (`character_grant`). O acesso vale até o mestre
@@ -258,6 +259,17 @@ detalhes:
   versão. Só se escreve por `publish_encounter_view(encontro, json)` (o dono do
   encontro, que tem de ser de uma campanha dele) e `unpublish_encounter_view`; os
   membros da campanha leem, e a tabela está no Realtime.
+- **Combat Tracker interativo, I1** (`20261015120000_combate_interativo_i1_mensagens.sql`,
+  2026-10-15): `combat_message`, mensagens de um encontro entre o mestre e um
+  personagem (`kind` + `payload`, genéricos; o significado fica na web). Decisão do
+  usuário: **quem recebe aceita** antes de valer — o mestre aceita o que o jogador
+  manda (iniciativa, d20 de salvamento) para entrar no Combat Tracker; o jogador
+  aceita o que o mestre manda (dano, cura) para a ficha mudar, e é o app dele que
+  grava a ficha. Funções: `send_to_dm` (quem fala pelo personagem — dono ou acesso
+  temporário —, só com o encontro mostrado aos jogadores), `send_to_player` (o dono
+  do encontro, mestre da campanha), `resolve_combat_message` (quem recebe),
+  `withdraw_combat_message` (quem mandou, enquanto pendente); até 20 pendentes por
+  personagem. Leem o mestre e quem fala pelo personagem; no Realtime.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
