@@ -60,6 +60,7 @@ indicado.
 | `attachment` | dono do registro que o usa | igual ao registro | o dono | base64 no JSON |
 | `encounter` | quem criou (mestre) | o mestre | o mestre | só na web (Combat Tracker; antes, no aparelho) |
 | `dm_table` | quem criou (mestre) | o mestre | o mestre | só na web (tabelas do mestre no Table Grimoire, GT5) |
+| `encounter_view` | encontro (mestre) | membros da campanha | o mestre, só pelas funções | só na web (vista filtrada do encontro para os jogadores, Combat Tracker ao vivo) |
 
 **Acesso temporário (Q1):** quando um jogador falta, o mestre concede a outro jogador
 acesso de edição à ficha do ausente (`character_grant`). O acesso vale até o mestre
@@ -250,6 +251,13 @@ detalhes:
   origem), `name` gerado do título; só o dono lê e grava (os jogadores não veem); a
   campanha, se houver, é dele (nula = One-shot). Copiar para outra campanha é um
   INSERT novo (cópia independente), pela web.
+- **Combat Tracker ao vivo, L1** (`20261014210000_combate_ao_vivo_l1_vista_dos_jogadores.sql`,
+  2026-10-14): `encounter_view`, a vista **filtrada** de um encontro (o que os
+  jogadores podem ver; PV, CA, moral, XP e notas dos inimigos ficam no aparelho do
+  mestre). Uma linha por encontro, substituída inteira: não segue o contrato de
+  versão. Só se escreve por `publish_encounter_view(encontro, json)` (o dono do
+  encontro, que tem de ser de uma campanha dele) e `unpublish_encounter_view`; os
+  membros da campanha leem, e a tabela está no Realtime.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
