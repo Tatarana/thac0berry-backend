@@ -270,6 +270,10 @@ detalhes:
   do encontro, mestre da campanha), `resolve_combat_message` (quem recebe),
   `withdraw_combat_message` (quem mandou, enquanto pendente); até 20 pendentes por
   personagem. Leem o mestre e quem fala pelo personagem; no Realtime.
+- **Aceitar as mudanças do mestre** (`20261015150000_aceitar_mudancas_do_mestre.sql`,
+  2026-10-15): `user_preferences.accept_dm_changes` (padrão falso). Ligado, o app do
+  jogador aceita sozinho o que o mestre manda ao personagem e destaca a mudança na
+  ficha; desligado, o jogador aceita ou recusa cada uma.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
