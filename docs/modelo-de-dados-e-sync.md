@@ -60,6 +60,7 @@ indicado.
 | `attachment` | dono do registro que o usa | igual ao registro | o dono | base64 no JSON |
 | `encounter` | quem criou (mestre) | o mestre | o mestre | só na web (Combat Tracker; antes, no aparelho) |
 | `dm_table` | quem criou (mestre) | o mestre | o mestre | só na web (tabelas do mestre no Table Grimoire, GT5) |
+| `custom_magic_item` | quem criou (mestre ou jogador) | o dono; o mestre da campanha; os membros, se compartilhado | o dono | só na web (itens mágicos criados; a ficha guarda uma cópia curta) |
 | `encounter_view` | encontro (mestre) | membros da campanha | o mestre, só pelas funções | só na web (vista filtrada do encontro para os jogadores, Combat Tracker ao vivo) |
 | `combat_message` | encontro e personagem | o mestre da campanha e quem fala pelo personagem | só pelas funções: manda quem pode, aceita quem recebe | só na web (Combat Tracker interativo) |
 
@@ -252,6 +253,16 @@ detalhes:
   origem), `name` gerado do título; só o dono lê e grava (os jogadores não veem); a
   campanha, se houver, é dele (nula = One-shot). Copiar para outra campanha é um
   INSERT novo (cópia independente), pela web.
+- **Itens mágicos criados** (`20261024120000_itens_magicos_customizados.sql`,
+  2026-10-24): `custom_magic_item`, o item em `data` (subconjunto do
+  `magic-item.schema.json` do thac0berry-data), `name` gerado; `visibility`
+  'private' ou 'campaign' (exige campanha). Lê o dono, o mestre da campanha
+  (inclusive os privados dos jogadores dela) e, se compartilhado, os membros;
+  só o dono grava, numa campanha de que é membro ou sem campanha. A ficha do
+  personagem guarda o id e uma cópia curta do item (`customItemID`), que se
+  atualiza quando quem pode editar a ficha a abre e o item mudou; "dar o item a
+  um personagem" é o mestre gravando a linha na ficha (ele já edita as fichas
+  da campanha, Fase 2b).
 - **Combat Tracker ao vivo, L1** (`20261014210000_combate_ao_vivo_l1_vista_dos_jogadores.sql`,
   2026-10-14): `encounter_view`, a vista **filtrada** de um encontro (o que os
   jogadores podem ver; PV, CA, moral, XP e notas dos inimigos ficam no aparelho do
