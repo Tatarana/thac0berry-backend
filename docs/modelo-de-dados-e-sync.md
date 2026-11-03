@@ -285,6 +285,21 @@ detalhes:
   2026-10-15): `user_preferences.accept_dm_changes` (padrão falso). Ligado, o app do
   jogador aceita sozinho o que o mestre manda ao personagem e destaca a mudança na
   ficha; desligado, o jogador aceita ou recusa cada uma.
+- **Admin e imagens do site** (`20261103094627_admin_e_imagens_do_site.sql`,
+  2026-11-03): `app_admin` (lista de e-mails, sem acesso pela API; começa com
+  fernando.hreis@gmail.com) e `is_admin()`, que confere o e-mail **confirmado**
+  da conta logada. Imagens trocáveis navegando pelo app (personagens do The
+  Forge; depois o Grimório e o Monstrous Manual) no bucket **público**
+  `site-images` (só WebP, até 5 MB, caminho `<slot>/<uuid>.webp`): todos leem,
+  inclusive sem login; só o admin envia. `site_image_version` guarda as versões
+  de cada slot (`forge/race-dwarf-male`, `monster/<id>`…), numeradas, uma atual
+  por slot; todos leem, e só se grava por `add_site_image_version` (registra o
+  arquivo já enviado como a versão seguinte e a torna atual) e
+  `set_current_site_image` (volta a uma versão anterior), do admin ou da chave
+  `service_role` (script que sobe as imagens do repo da web como versão 1).
+  Decisão do usuário: nenhuma versão é apagada, nunca. A web converte para WebP
+  e ajusta o tamanho antes de enviar; sem versão no banco, usa o arquivo do
+  repo.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,
