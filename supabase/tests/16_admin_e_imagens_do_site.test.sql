@@ -1,9 +1,10 @@
 -- Perfil Admin e imagens do site versionadas (2026-11-03): qualquer um lê,
 -- inclusive sem login; só o admin (e-mail confirmado da lista) envia arquivo,
--- registra versão e troca a atual; nada é apagado.
+-- registra versão e troca a atual; nada é apagado. Desde 2026-11-04 os arquivos
+-- ficam no S3 (a Edge Function confere o arquivo); o banco só registra o caminho.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(17);
+select plan(19);
 
 insert into auth.users (id, email, email_confirmed_at, aud, role) values
   ('ad000000-0000-0000-0000-000000000001', 'fernando.hreis@gmail.com', now(), 'authenticated', 'authenticated'),
@@ -39,9 +40,9 @@ select is((select version from public.site_image_version where slot = 'forge/rac
 select throws_ok(
   $$select public.add_site_image_version('forge/race-elf-male', 'forge/race-dwarf-male/a.webp')$$,
   '22023', null, 'o arquivo tem de estar na pasta do slot');
-select throws_ok(
-  $$select public.add_site_image_version('forge/race-dwarf-male', 'forge/race-dwarf-male/nao-enviado.webp')$$,
-  'P0002', null, 'só registra arquivo que está no bucket');
+-- O arquivo vive no S3: o banco registra o caminho sem olhar o storage.
+select is(public.add_site_image_version('forge/race-elf-male', 'forge/race-elf-male/so-no-s3.webp', 896, 1200), 1, 'registra o caminho sem arquivo no storage');
+select is((select uploaded_by from public.site_image_version where storage_path = 'forge/race-elf-male/so-no-s3.webp'), 'ad000000-0000-0000-0000-000000000001'::uuid, 'uploaded_by é o admin logado');
 
 -- Volta para a 1.
 select public.set_current_site_image('forge/race-dwarf-male', 1);
@@ -52,6 +53,12 @@ select set_config('request.jwt.claims', '{"sub":"ad000000-0000-0000-0000-0000000
 select throws_ok(
   $$select public.set_current_site_image('forge/race-dwarf-male', 2)$$,
   '42501', null, 'o jogador não troca a versão atual');
+
+-- A chave service_role (script de carga) também registra.
+reset role;
+set local role service_role;
+select set_config('request.jwt.claims', '{"role":"service_role"}', true);
+select is(public.add_site_image_version('forge/race-gnome-male', 'forge/race-gnome-male/carga.webp'), 1, 'a service_role registra versão');
 
 -- Sem login: lê as versões e os arquivos.
 reset role;

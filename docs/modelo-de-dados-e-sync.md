@@ -300,6 +300,19 @@ detalhes:
   Decisão do usuário: nenhuma versão é apagada, nunca. A web converte para WebP
   e ajusta o tamanho antes de enviar; sem versão no banco, usa o arquivo do
   repo.
+- **Imagens do site fora do Supabase Storage** (`20261104205322_imagens_do_site_fora_do_storage.sql`,
+  2026-11-04; desenho em `docs/imagens-fora-do-supabase.md`): os arquivos passam
+  a viver num bucket S3 privado atrás do CloudFront; `site_image_version.storage_path`
+  segue relativo (`<slot>/<uuid>.webp`), igual nos dois. `add_site_image_version`
+  deixa de conferir `storage.objects` e mantém a checagem de permissão, a da pasta
+  do slot e o lock por slot. Quem confere que o arquivo chegou (existe, `image/webp`,
+  até 5 MB, dentro da pasta do slot) é a Edge Function `site-image-upload` (ação
+  `finalize`, por HEAD no S3), que chama a RPC com o JWT do admin, então
+  `uploaded_by` continua certo e a `service_role` não participa. A ação `presign`
+  devolve uma URL de PUT assinada por 5 minutos (tipo, tamanho e `If-None-Match: *`
+  presos). O bucket `site-images` do Supabase e suas políticas ficam intactos como
+  backup. Arquivo enviado e recusado no `finalize` fica órfão no S3 (a credencial
+  não apaga); é inofensivo. Infra AWS: `infra/site-images/`.
 - **Arquivos:** bucket privado `attachments`, com um caminho por usuário
   (`<user_id>/<sha256>`).
 - **Encontros e campanha ativa** (`20261012120000_encontros_e_campanha_ativa.sql`,

@@ -1,0 +1,7 @@
+{
+  "Name": "thac0berry-site-images-oac",
+  "Description": "CloudFront le o bucket privado das imagens do site",
+  "SigningProtocol": "sigv4",
+  "SigningBehavior": "always",
+  "OriginAccessControlOriginType": "s3"
+}
