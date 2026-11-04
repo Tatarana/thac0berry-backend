@@ -386,6 +386,12 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Envio das imagens do site para o S3 (docs/imagens-fora-do-supabase.md).
+# verify_jwt desligado: o gateway barraria o OPTIONS do CORS (sem Authorization).
+# A autorização é is_admin(), conferida dentro da função com o JWT do usuário.
+[functions.site-image-upload]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

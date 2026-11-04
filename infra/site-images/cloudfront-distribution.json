@@ -1,0 +1,25 @@
+{
+  "CallerReference": "thac0berry-site-images-1",
+  "Comment": "THAC0berry: imagens do site",
+  "Enabled": true,
+  "HttpVersion": "http2and3",
+  "PriceClass": "PriceClass_100",
+  "Origins": {
+    "Quantity": 1,
+    "Items": [
+      {
+        "Id": "s3-site-images",
+        "DomainName": "<BUCKET>.s3.<REGION>.amazonaws.com",
+        "OriginAccessControlId": "<OAC_ID>",
+        "S3OriginConfig": { "OriginAccessIdentity": "" }
+      }
+    ]
+  },
+  "DefaultCacheBehavior": {
+    "TargetOriginId": "s3-site-images",
+    "ViewerProtocolPolicy": "redirect-to-https",
+    "AllowedMethods": { "Quantity": 2, "Items": ["GET", "HEAD"] },
+    "Compress": false,
+    "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6"
+  }
+}
