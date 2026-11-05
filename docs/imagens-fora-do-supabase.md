@@ -1,10 +1,9 @@
 # Imagens do site fora do Supabase (S3 + CloudFront)
 
-**Situação (2026-11-04): AWS criada, aguardando a virada.** O bucket, o CloudFront, o
-usuário restrito, os secrets e a função já estão no ar, e os arquivos foram copiados.
-O site publicado ainda lê do Supabase. Falta publicar a web, aplicar a migração e
-testar pelo lápis (`infra/site-images/README.md`, passo 4). O código está nas branches
-`imagens-s3` (backend) e `admin/imagens-s3` (web).
+**Situação (2026-11-05): em produção.** O site lê do CloudFront e o lápis envia ao S3
+(testado com login de admin). O bucket `site-images` do Supabase ficou intacto como
+backup, mas não recebe mais imagens novas: as versões enviadas daqui em diante existem
+só no S3. Passo a passo em `infra/site-images/README.md`.
 
 **Motivo:** o volume cresce com o Monstrous Manual. Só por custo a migração ainda não
 se paga: as imagens do Forge ocupam cerca de 9 MB hoje. Com uns 500 monstros e algumas
