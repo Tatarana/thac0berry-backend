@@ -1,8 +1,8 @@
 # Imagens do site na AWS: passo a passo
 
-Passos 1 a 3 e 6 já executados em 2026-11-04 (conta `025112051097`, `sa-east-1`, bucket
+Tudo executado em 2026-11-04, virada incluída (conta `025112051097`, `sa-east-1`, bucket
 `thac0berry-site-images-025112051097`, distribuição `E2Y49SR3KVKC9Z`,
-`d1ve1v7ojhgjr2.cloudfront.net`). Falta a virada (passo 4). A AWS CLI precisa ser de
+`d1ve1v7ojhgjr2.cloudfront.net`). Este arquivo fica como registro e guia para refazer. A AWS CLI precisa ser de
 2022 ou mais nova, por causa do `create-origin-access-control`. Desenho e motivos: `docs/imagens-fora-do-supabase.md`. Os comandos são para o Git
 Bash (ou qualquer shell POSIX) com a AWS CLI v2.
 
@@ -138,6 +138,10 @@ A função nova só é chamada pela web nova, então publicá-la antes não muda
 4. **Teste**: troque uma imagem pelo lápis, recarregue, volte para a versão anterior.
 5. **Passada final de cópia** (passo 2), por garantia.
 
+Atenção a abas abertas antes da publicação: o painel antigo continua enviando ao
+Supabase, e depois da migração nada o impede. A versão fica registrada, mas a imagem
+aparece quebrada até uma nova passada de cópia. Recarregue todas as abas (Ctrl+F5).
+
 **Por que a web antes da migração, e não o contrário?** Depois da migração e antes da
 web nova, o painel antigo (ainda publicado) envia o arquivo ao Supabase Storage e
 registra a versão, sem a migração reclamar de nada. Essa versão passaria a existir só
@@ -165,4 +169,4 @@ Testado em 2026-11-04 contra o S3 real, com `presignPut` rodando localmente e as
 credenciais do usuário do site: tipo `image/png`, tamanho diferente e outro caminho
 dão 403 `SignatureDoesNotMatch`; o PUT correto dá 200; repeti-lo dá 412; apagar dá 403
 `AccessDenied`; ler direto no S3 sem login dá 403. O objeto criado nesse teste ficou em
-`forge/_teste-s3/`. Falta o fluxo completo com login de admin, pelo lápis (passo 4.4).
+`forge/_teste-s3/`. O fluxo completo com login de admin, pelo lápis, funcionou em 2026-11-05.
