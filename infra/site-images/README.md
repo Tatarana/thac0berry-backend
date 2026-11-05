@@ -10,6 +10,7 @@ Bash (ou qualquer shell POSIX) com a AWS CLI v2.
 |---|---|
 | `cors.json` | CORS do bucket: PUT vindo do site e do `localhost:5174` |
 | `oac.json` | Origin Access Control: só o CloudFront lê o bucket |
+| `response-headers-policy.json` | CORS do CloudFront: o site lê as imagens por `fetch` |
 | `cloudfront-distribution.json` | Distribuição com cache longo (política gerenciada CachingOptimized) |
 | `bucket-policy.json` | Política do bucket: leitura só pela distribuição |
 | `iam-policy.json` | Política do usuário da Edge Function e dos scripts: grava e lê; nunca apaga |
@@ -89,6 +90,19 @@ gerenciador de senhas; não a cole no repo, em issue ou em chat.
 > `s3:GetObject` é o que a função usa no HEAD de conferência. Sem `s3:ListBucket`, um
 > arquivo que não existe responde 403 em vez de 404; a função trata os dois do mesmo
 > jeito ("o arquivo não chegou").
+
+**1.7 CORS de leitura no CloudFront** (2026-11-05, política
+`39ca32a7-a042-4320-bbfd-a7d6157b806f`): o retrato automático do Forge lê a imagem por
+`fetch` para gravá-la na ficha, e `<img>` não precisa disso. O CORS fica na distribuição,
+não no bucket, porque a política de cache não varia por `Origin`.
+
+```bash
+aws cloudfront create-response-headers-policy \
+  --response-headers-policy-config file://response-headers-policy.json
+```
+
+Ponha o `Id` da resposta em `DefaultCacheBehavior.ResponseHeadersPolicyId` da distribuição
+(`get-distribution-config`, depois `update-distribution --if-match <ETag>`).
 
 ## 2. Copiar os arquivos que já existem (primeira passada)
 

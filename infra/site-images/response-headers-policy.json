@@ -1,0 +1,12 @@
+{
+  "Name": "thac0berry-site-images-cors",
+  "Comment": "Deixa o site ler as imagens por fetch (retrato automatico do Forge)",
+  "CorsConfig": {
+    "AccessControlAllowOrigins": { "Quantity": 2, "Items": ["https://tatarana.github.io", "http://localhost:5174"] },
+    "AccessControlAllowHeaders": { "Quantity": 1, "Items": ["*"] },
+    "AccessControlAllowMethods": { "Quantity": 2, "Items": ["GET", "HEAD"] },
+    "AccessControlAllowCredentials": false,
+    "AccessControlMaxAgeSec": 3000,
+    "OriginOverride": true
+  }
+}
